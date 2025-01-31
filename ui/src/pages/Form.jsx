@@ -9,6 +9,7 @@ const Form = () => {
         commentaire: ''
     });
     const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -38,11 +39,16 @@ const Form = () => {
                 note: '',
                 commentaire: ''
             });
+            setMessage('');
+            setError('');
         } catch (error) {
             console.error('Erreur:', error);
-            setMessage('Erreur lors de l\'enregistrement de la note');
+            setError('Erreur lors de l\'enregistrement de la note');
         }
     };
+
+    console.log('message', message);
+    console.log('error', error);
 
     return (
         <div className="container">
@@ -53,6 +59,7 @@ const Form = () => {
             <main>
                 <form onSubmit={handleSubmit} className="form-card">
                     {message && <div className="message">{message}</div>}
+                    {error && <div className="error">{error}</div>}
 
                     <div className="form-group">
                         <label htmlFor="nomEleve">Nom de l'élève:</label>

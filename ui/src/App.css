@@ -151,3 +151,12 @@ footer {
   border-radius: 4px;
   text-align: center;
 }
+
+.error {
+  background-color: #af4c4c;
+  color: white;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  text-align: center;
+}
