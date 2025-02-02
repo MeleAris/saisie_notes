@@ -34,6 +34,7 @@ CREATE TABLE enseignement (
 
 CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    code_eleve VARCHAR(10) UNIQUE NOT NULL,
     nom_prenom VARCHAR(100) NOT NULL,
     classe_id INT,
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

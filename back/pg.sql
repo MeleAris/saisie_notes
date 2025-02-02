@@ -25,6 +25,7 @@ CREATE TABLE enseignement (
 );
 CREATE TABLE students (
     id SERIAL PRIMARY KEY,
+    code_eleve VARCHAR(10) UNIQUE NOT NULL,
     nom_prenom VARCHAR(100) NOT NULL,
     classe_id INTEGER KEY REFERENCES classe(id),
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP

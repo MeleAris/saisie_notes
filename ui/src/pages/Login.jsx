@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../constantes/constante';
 import { AuthContext } from "../context/authContext";
 import '../styles/Login.css';
 
@@ -16,7 +17,7 @@ const Login = () => {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:5001/api/login', {
+            const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ login, password })

@@ -1,6 +1,7 @@
 import { PlusIcon, Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { API_URL } from '../constantes/constante';
 import '../styles/StudentList.css';
 
 const StudentList = () => {
@@ -18,7 +19,7 @@ const StudentList = () => {
     useEffect(() => {
         const fetchStudents = async () => {
             try {
-                const response = await fetch(`http://localhost:5001/api/students/${id}`, {
+                const response = await fetch(`${API_URL}/students/${id}`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 if (!response.ok) throw new Error('Erreur lors de la récupération des données');
@@ -32,7 +33,7 @@ const StudentList = () => {
         };
         const fetchNotes = async () => {
             try {
-                const response = await fetch(`http://localhost:5001/api/notes/${localStorage.getItem('subject')}`, {
+                const response = await fetch(`${API_URL}/notes/${localStorage.getItem('subject')}`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 if (!response.ok) throw new Error('Erreur lors de la récupération des données');
@@ -66,7 +67,7 @@ const StudentList = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:5001/api/notes`, {
+            const response = await fetch(`${API_URL}/notes`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../constantes/constante';
 import '../styles/Classes.css';
 
 const Classes = () => {
@@ -13,7 +14,7 @@ const Classes = () => {
         const fetchClasses = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:5001/api/classes', {
+                const response = await fetch(`${API_URL}/classes`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -30,7 +31,7 @@ const Classes = () => {
         const fetchEns = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:5001/api/enseignement', {
+                const response = await fetch(`${API_URL}/enseignement`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -47,7 +48,7 @@ const Classes = () => {
         const fetchMatieres = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:5001/api/matieres', {
+                const response = await fetch(`${API_URL}/matieres`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
