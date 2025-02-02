@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "../context/authContext";
 import '../styles/Login.css';
 
 const Login = () => {
@@ -7,6 +8,8 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
+    const { dispatch } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,7 +28,7 @@ const Login = () => {
                 throw new Error(data.message || 'Erreur de connexion');
             }
 
-            localStorage.setItem('token', data.token);
+            dispatch({ type: "LOGIN", payload: data.token });
             localStorage.setItem('user', data.teacher.id);
             navigate('/');
         } catch (error) {
