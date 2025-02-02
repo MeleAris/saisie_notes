@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5001"
+    environment:
+      - DB_HOST=host.docker.internal
+      - DATABASE_PORT=5432
+      - USER=ton_utilisateur
+      - PASS=ton_mot_de_passe
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5001/api
+    depends_on:
+      - backend
+
+networks:
+  default:
+    driver: bridge
