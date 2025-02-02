@@ -3,7 +3,7 @@
 ## Prérequis
 
 - Node.js installé
-- npm ou yarn installé
+- npm installé
 
 ## Installation
 
@@ -21,7 +21,11 @@
 
 3. Lancez le serveur backend :
     ```bash
-    node server.js
+    node pg-server.js
+    ```
+    ou
+    ```bash
+    node mysql-server.js
     ```
 
 ### Frontend
