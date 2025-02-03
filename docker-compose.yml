@@ -1,15 +1,28 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: notes_scolaire
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   backend:
     build: ./back
     ports:
       - "5001:5001"
     environment:
-      - DB_HOST=host.docker.internal
+      - DB_HOST=postgres
       - DATABASE_PORT=5432
       - USER=postgres
-      - PASS=
+      - PASS=admin
+    depends_on:
+      - postgres
 
   frontend:
     build: ./ui
@@ -20,6 +33,5 @@ services:
     depends_on:
       - backend
 
-networks:
-  default:
-    driver: bridge
+volumes:
+  pgdata:
