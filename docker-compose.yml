@@ -2,17 +2,17 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
+    build: ./back
     ports:
       - "5001:5001"
     environment:
       - DB_HOST=host.docker.internal
       - DATABASE_PORT=5432
-      - USER=ton_utilisateur
-      - PASS=ton_mot_de_passe
+      - USER=postgres
+      - PASS=
 
   frontend:
-    build: ./frontend
+    build: ./ui
     ports:
       - "3000:3000"
     environment:
