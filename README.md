@@ -19,7 +19,9 @@
     npm install
     ```
 
-3. Lancez le serveur backend :
+3. Créer les tables de la base de données en se basant sur les srcipts de `pg.sql` ou `mysql.sql` selon votre SGBD
+
+4. Lancez le serveur backend :
     ```bash
     node pg-server.js
     ```
