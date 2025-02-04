@@ -1,6 +1,6 @@
-import { PlusIcon, Search } from 'lucide-react';
+import { PencilIcon, PlusIcon, Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { API_URL } from '../constantes/constante';
 import '../styles/StudentList.css';
 
@@ -12,9 +12,9 @@ const StudentList = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
-    const [note, setNote] = useState('');
-    const navigate = useNavigate();
+    const [studentNotes, setStudentNotes] = useState({ id: null, note_classe: null, note_devoir: null, note_compo: null });
 
     useEffect(() => {
         const fetchStudents = async () => {
@@ -55,17 +55,26 @@ const StudentList = () => {
         student.nom_prenom.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleNoteChange = (e) => {
+        setStudentNotes({ ...studentNotes, [e.target.name]: e.target.value });
+    };
+
     const handleOpenModal = (student) => {
         setSelectedStudent(student);
         setShowModal(true);
     };
+    const handleOpenUpdateModal = (student, notes) => {
+        setSelectedStudent(student);
+        setStudentNotes({
+            id: notes.id,
+            note_classe: notes.note_classe,
+            note_devoir: notes.note_devoir,
+            note_compo: notes.note_compo
+        });
+        setShowUpdateModal(true);
+    };
 
     const handleSaveNote = async () => {
-        if (!note.trim()) {
-            alert("Veuillez entrer une note valide.");
-            return;
-        }
-
         try {
             const response = await fetch(`${API_URL}/notes`, {
                 method: 'POST',
@@ -76,49 +85,49 @@ const StudentList = () => {
                 body: JSON.stringify({
                     eleve: selectedStudent.id,
                     matiere: localStorage.getItem('subject'),
-                    note: note
+                    note_classe: studentNotes.note_classe,
+                    note_devoir: studentNotes.note_devoir,
+                    note_compo: studentNotes.note_compo,
                 })
             });
 
             if (!response.ok) throw new Error('Erreur lors de l\'enregistrement de la note');
 
             setShowModal(false);
-            setNote('');
+            setStudentNotes({ note_classe: null, note_devoir: null, note_compo: null });
             window.location.reload();
         } catch (err) {
             alert(err.message);
         }
     };
 
-    let maxN = 0;
+    const handleUpdateNote = async () => {
+        try {
+            const response = await fetch(`${API_URL}/notes`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: studentNotes.id,
+                    eleve: selectedStudent.id,
+                    matiere: localStorage.getItem('subject'),
+                    note_classe: studentNotes.note_classe,
+                    note_devoir: studentNotes.note_devoir,
+                    note_compo: studentNotes.note_compo,
+                })
+            });
 
-    const studentsInClass = students.filter(s => s.classe_id === parseInt(id)).map(e => e.id);
+            if (!response.ok) throw new Error('Erreur lors de la modification de la note');
 
-    // Compter le nombre de notes pour chaque étudiant
-    const countNotesPerStudent = notes.reduce((acc, { student_id }) => {
-        if (studentsInClass.includes(student_id)) {
-            acc[student_id] = (acc[student_id] || 0) + 1;
+            setShowUpdateModal(false);
+            setStudentNotes({ id: null, note_classe: null, note_devoir: null, note_compo: null });
+            window.location.reload();
+        } catch (err) {
+            alert(err.message);
         }
-        return acc;
-    }, {});
-
-    const studentIds = Object.keys(countNotesPerStudent);
-    if (studentIds.length > 0) {
-        const maxNotesStudentId = studentIds.reduce((maxId, studentId) => {
-            return countNotesPerStudent[studentId] > countNotesPerStudent[maxId] ? studentId : maxId;
-        });
-        maxN = countNotesPerStudent[maxNotesStudentId];
-    }
-
-    //Grouper les notes par étudiant
-    const notesByStudent = notes.reduce((acc, note) => {
-        if (!acc[note.student_id]) {
-            acc[note.student_id] = [];
-        }
-        acc[note.student_id].push(note);
-        return acc;
-    }, {});
-
+    };
 
     if (loading) return <div className="loading">Chargement...</div>;
     if (error) return <div className="error">Une erreur est survenue : {error}</div>;
@@ -146,42 +155,70 @@ const StudentList = () => {
                     <thead>
                         <tr>
                             <th>Nom et prénoms</th>
-                            {Array.from({ length: maxN }, (_, i) => (
-                                <th key={i}>Note {i + 1}</th>
-                            ))}
+                            <th>Note Classe</th>
+                            <th>Note Devoir</th>
+                            <th>Note Composition</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredStudents.map((student) => (
-                            <tr key={student.id}>
-                                <td>{student.nom_prenom}</td>
-                                {Array.from({ length: maxN }, (_, i) => (
-                                    <td key={i}>
-                                        {notesByStudent[student.id] && notesByStudent[student.id][i] ? notesByStudent[student.id][i].note : '-'}
+                        {filteredStudents.map((student) => {
+                            const studentNotevalues = notes.find(note => note.student_id === student.id && note.matiere_id === parseInt(localStorage.getItem('subject')));
+                            return (
+                                <tr key={student.id}>
+                                    <td>{student.nom_prenom}</td>
+                                    <td>{studentNotevalues && studentNotevalues.note_classe}</td>
+                                    <td>{studentNotevalues && studentNotevalues.note_devoir}</td>
+                                    <td>{studentNotevalues && studentNotevalues.note_compo}</td>
+                                    <td className="actions">
+                                        {
+                                            studentNotevalues && (studentNotevalues.note_classe || studentNotevalues.note_devoir || studentNotevalues.note_compo) ? (
+                                                <button onClick={() => handleOpenUpdateModal(student, studentNotevalues)} className="update-btn">
+                                                    <PencilIcon size={20} />
+                                                </button>
+                                            ) : (
+                                                <button onClick={() => handleOpenModal(student)} className="view-btn">
+                                                    <PlusIcon size={20} />
+                                                </button>
+                                            )
+                                        }
                                     </td>
-                                ))}
-                                <td className="actions">
-                                    <button onClick={() => handleOpenModal(student)} className="view-btn">
-                                        <PlusIcon size={20} />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 </table>
             </div>
             {showModal && selectedStudent && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h2>Ajouter une note pour {selectedStudent.nom_prenom}</h2>
+                        <h2>Notes de {selectedStudent.nom_prenom}</h2>
                         <input
                             type="number"
-                            placeholder="Entrer la note"
-                            value={note}
+                            name="note_classe"
+                            placeholder="Entrer la note de classe"
+                            value={studentNotes.note_classe}
                             min={0}
                             max={20}
-                            onChange={(e) => setNote(e.target.value)}
+                            onChange={handleNoteChange}
+                        />
+                        <input
+                            type="number"
+                            name="note_devoir"
+                            placeholder="Entrer la note de devoir"
+                            value={studentNotes.note_devoir}
+                            min={0}
+                            max={20}
+                            onChange={handleNoteChange}
+                        />
+                        <input
+                            type="number"
+                            name="note_compo"
+                            placeholder="Entrer la note de composition"
+                            value={studentNotes.note_compo}
+                            min={0}
+                            max={20}
+                            onChange={handleNoteChange}
                         />
                         <div className="modal-buttons">
                             <button onClick={handleSaveNote} className="save-btn">Enregistrer</button>
@@ -190,7 +227,44 @@ const StudentList = () => {
                     </div>
                 </div>
             )}
-
+            {showUpdateModal && selectedStudent && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Notes de {selectedStudent.nom_prenom}</h2>
+                        <input
+                            type="number"
+                            name="note_classe"
+                            placeholder="Entrer la note de classe"
+                            value={studentNotes.note_classe}
+                            min={0}
+                            max={20}
+                            onChange={handleNoteChange}
+                        />
+                        <input
+                            type="number"
+                            name="note_devoir"
+                            placeholder="Entrer la note de devoir"
+                            value={studentNotes.note_devoir}
+                            min={0}
+                            max={20}
+                            onChange={handleNoteChange}
+                        />
+                        <input
+                            type="number"
+                            name="note_compo"
+                            placeholder="Entrer la note de composition"
+                            value={studentNotes.note_compo}
+                            min={0}
+                            max={20}
+                            onChange={handleNoteChange}
+                        />
+                        <div className="modal-buttons">
+                            <button onClick={handleUpdateNote} className="save-btn">Enregistrer</button>
+                            <button onClick={() => setShowUpdateModal(false)} className="close-btn">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

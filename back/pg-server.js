@@ -164,16 +164,16 @@ app.get('/api/notes/:id', authenticateToken, async (req, res) => {
 
 // Route pour ajouter une note
 app.post('/api/notes', authenticateToken, async (req, res) => {
-    const { eleve, matiere, note } = req.body;
+    const { eleve, matiere, note_classe, note_devoir, note_compo } = req.body;
 
     try {
         const result = await db.query(
-            'INSERT INTO notes (student_id, matiere_id, note) VALUES ($1, $2, $3) RETURNING id',
-            [eleve, matiere, note]
+            'INSERT INTO notes (student_id, matiere_id, note_classe, note_devoir, note_compo) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+            [eleve, matiere, note_classe, note_devoir, note_compo]
         );
 
         res.status(201).json({
-            message: 'Note ajoutée avec succès',
+            message: 'Notes ajoutées avec succès',
             id: result.rows[0].id
         });
     } catch (error) {
@@ -183,20 +183,19 @@ app.post('/api/notes', authenticateToken, async (req, res) => {
 });
 
 // Route pour modifier une note
-app.put('/api/notes/:id', authenticateToken, async (req, res) => {
-    const { id } = req.params;
-    const { eleve, matiere, note } = req.body;
+app.put('/api/notes', authenticateToken, async (req, res) => {
+    const { id, eleve, matiere, note_classe, note_devoir, note_compo } = req.body;
 
     try {
         await db.query(
-            'UPDATE notes SET student_id = $1, matiere_id = $2, note = $3 WHERE id = $4',
-            [eleve, matiere, note, id]
+            'UPDATE notes SET student_id = $1, matiere_id = $2, note_classe = $3, note_devoir = $4, note_compo = $5 WHERE id = $6',
+            [eleve, matiere, note_classe, note_devoir, note_compo, id]
         );
 
-        res.json({ message: 'Note modifiée avec succès' });
+        res.json({ message: 'Notes modifiées avec succès' });
     } catch (error) {
-        console.error('Erreur lors de la modification de la note:', error);
-        res.status(500).json({ message: 'Erreur lors de la modification de la note' });
+        console.error('Erreur lors de la modification des notes:', error);
+        res.status(500).json({ message: 'Erreur lors de la modification des notes' });
     }
 });
 
